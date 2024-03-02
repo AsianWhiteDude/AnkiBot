@@ -1,3 +1,3 @@
 
 # Инициализируем "базу данных"
-users_db = {}
+users_db: dict[int, dict[str, dict[str, str]]] = {}
