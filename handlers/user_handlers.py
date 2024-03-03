@@ -14,13 +14,13 @@ router = Router()
 
 class FSMAddSet(StatesGroup):
 
-    fill_name = State()
+    name = State()
 
 
 class FSMAddCard(StatesGroup):
 
-    fill_front = State()
-    fill_back = State()
+    front = State()
+    back = State()
 
 
 # Этот хэндлер будет срабатывать на команду "/start" -
@@ -40,6 +40,8 @@ async def process_start_command(message: Message):
 async def process_help_command(message: Message):
     await message.answer(LEXICON[message.text], reply_markup=sets_cards_kb)
 
+
+
 # Этот хэндлер будет срабатывать на команду "/cancel" в любых состояниях,
 # кроме состояния по умолчанию, и отключать машину состояний
 @router.message(Command(commands='cancel'), ~StateFilter(default_state))
@@ -48,23 +50,31 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
     await state.clear()
 
 
+
 @router.message(F.text == LEXICON['button_add_set'], StateFilter(default_state))
 async def process_fillname(message: Message, state: FSMContext):
     await message.answer(text='Пожалуйста, введите название сета:')
     # Устанавливаем состояние ожидания ввода имени
-    await state.set_state(FSMAddSet.fill_name)
+    await state.set_state(FSMAddSet.name)
 
-@router.message(StateFilter(FSMAddSet.fill_name), F.text.isalpha())
+
+
+@router.message(StateFilter(FSMAddSet.name), F.text.isalpha())
 async def process_fillname_sent(message: Message, state: FSMContext):
     await state.update_data(name=message.text)
 
-    users_db[message.from_user.id][message.text] = {}
+    current_state = await state.get_data()
+    if current_state is None:
+        return
 
+    users_db[message.from_user.id][current_state['name']] = {}
+
+    await state.clear()
     await message.answer(text=f'Отлично! Сет с именем {message.text} был успешно создан', reply_markup=sets_cards_kb)
 
 # Этот хэндлер будет срабатывать, если во время ввода имени
 # будет введено что-то некорректное
-@router.message(StateFilter(FSMAddSet.fill_name))
+@router.message(StateFilter(FSMAddSet.name))
 async def warning_not_name(message: Message):
     await message.answer(
         text='То, что вы отправили не похоже на название\n\n'
