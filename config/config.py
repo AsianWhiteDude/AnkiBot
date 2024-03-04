@@ -11,6 +11,10 @@ class TgBot:
 class Config:
     tg_bot: TgBot
 
+@dataclass
+class CursoredDict:
+    cursor: bool
+    dictionary: dict
 
 def load_config(path: str | None = None) -> Config:
     env = Env()
