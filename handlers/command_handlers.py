@@ -5,9 +5,9 @@ from aiogram.types import Message
 from database.database import users_db
 from keyboards.reply_menu import sets_cards_kb
 from lexicon.lexicon_ru import LEXICON
-from all_sets_handlers import process_all_sets
-from add_card_handlers import process_choose_set
-from create_set_handlers import process_enter_name
+from handlers.all_sets_handlers import process_all_sets
+from handlers.add_card_handlers import process_choose_set
+from handlers.create_set_handlers import process_enter_name
 
 
 router = Router()

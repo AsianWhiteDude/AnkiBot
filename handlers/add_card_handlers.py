@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.filters import  StateFilter
+from aiogram.filters import  StateFilter, Command, or_f
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import Message, CallbackQuery
 from database.database import users_db
@@ -27,6 +27,13 @@ class FSMCard(StatesGroup):
 class SetAddCBF(CallbackData, prefix='set_add'):
     set_name: str
 
+
+# This handler is triggered when user enters command "/cancel"
+@router.message(Command(commands='cancel'), or_f(StateFilter(FSMCard.name_set),
+                StateFilter(FSMCard.front), StateFilter(FSMCard.back)))
+async def process_cancel_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(LEXICON[message.text], reply_markup=sets_cards_kb)
 
 # Creating inline kb to choose a set to add card
 @router.message(F.text == LEXICON['button_add_card'], StateFilter(default_state))
@@ -70,14 +77,15 @@ async def process_set_card(message: Message, state: FSMContext):
     if current_state is None:
         return
 
-    curr_set: str = current_state['name_set'].split(':')[-1]
+    curr_set: str = current_state['name_set'].pack().split(':')[-1]
 
     users_db[message.from_user.id][curr_set][current_state['front']] = current_state['back']
 
     await state.clear()
-    await message.answer(text=f'Отлично! Карточка {current_state['front']} =
-                         {current_state['back']} была успешно создана!',
-                         reply_markup=sets_cards_kb)
+    await message.answer(text=f'Отлично! Карточка {current_state['front']} = '
+                         f'{current_state["back"]} была успешно создана!',
+                         reply_markup=sets_cards_kb
+                        )
 
 
 

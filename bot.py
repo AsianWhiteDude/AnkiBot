@@ -33,11 +33,13 @@ async def main():
     await set_main_menu(bot)
 
     #Connecting routers from handlers
-    dp.include_router(command_handlers.router)
+
     dp.include_router(all_sets_handlers.router)
     dp.include_router(add_card_handlers.router)
     dp.include_router(create_set_handlers.router)
+    dp.include_router(command_handlers.router)
     dp.include_router(other_handlers.router)
+
 
     #Start for only new updates
     await bot.delete_webhook(drop_pending_updates=True)

@@ -94,14 +94,17 @@ async def response_del_set(callback: CallbackQuery, callback_data: SetDelCBF):
     del users_db[callback.from_user.id][callback_data.pack().split(':')[1]]
     sets: list[str] = users_db[callback.from_user.id].keys()
 
-    del_sets = create_listed_inline_kb(expansion=SetDelCBF,
-                                    args=sets,
-                                    editing=False,
-                                    special_smbl=LEXICON['del_smbl'])
+    if not sets:
+        await callback.message.edit_text(text=LEXICON['no_sets'])
+    else:
+        del_sets = create_listed_inline_kb(expansion=SetDelCBF,
+                                        args=sets,
+                                        editing=False,
+                                        special_smbl=LEXICON['del_smbl'])
 
-    await callback.answer(text=LEXICON['success'])
-    await callback.message.edit_text(text=LEXICON['choose_del_set_card'],
-                                    reply_markup=del_sets)
+        await callback.answer(text=LEXICON['success'])
+        await callback.message.edit_text(text=LEXICON['choose_del_set_card'],
+                                        reply_markup=del_sets)
 
 
 # Shows all cards of the set that was pressed

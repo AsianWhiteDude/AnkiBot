@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.filters import  StateFilter
+from aiogram.filters import  StateFilter, Command
 from aiogram.types import Message
 from database.database import users_db
 from aiogram.fsm.context import FSMContext
@@ -16,6 +16,15 @@ router = Router()
 class FSMAddSet(StatesGroup):
 
     name = State()
+
+
+
+# This handler is triggered when user enters command "/cancel"
+@router.message(Command(commands='cancel'), StateFilter(FSMAddSet.name))
+async def process_cancel_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(LEXICON[message.text], reply_markup=sets_cards_kb)
+
 
 # This handler triggers when creating new set and asks for
 # the name of a new set
@@ -50,7 +59,7 @@ async def process_name_sent(message: Message, state: FSMContext):
 
 # This handler operates if user sent any data that is not text
 @router.message(StateFilter(FSMAddSet.name))
-async def warning_invalid_name(message: Message):
+async def warning_invalid_name(message: Message, state: FSMContext):
     await message.answer(
         text=LEXICON['invalid_name']
     )
