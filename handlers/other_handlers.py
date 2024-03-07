@@ -4,9 +4,8 @@ from lexicon.lexicon_ru import LEXICON
 
 router = Router()
 
-
-# Этот хэндлер будет реагировать на любые сообщения пользователя,
-# не предусмотренные логикой работы бота
+# This handler gets triggered by any user messages that are not
+# supposed to be handled by this bot
 @router.message()
-async def send_echo(message: Message):
-    await message.answer(LEXICON['empty_response'])
+async def send_echo_response(message: Message):
+    await message.answer(LEXICON['echo_response'])
