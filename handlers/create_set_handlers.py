@@ -54,7 +54,7 @@ async def process_name_sent(message: Message, state: FSMContext):
 
     # clearing state
     await state.clear()
-    await message.answer(text=f'Отлично! Сет с именем {message.text} был успешно создан', reply_markup=sets_cards_kb)
+    await message.answer(text=f'Отлично! Колода с именем {message.text} был успешно создан', reply_markup=sets_cards_kb)
 
 
 # This handler operates if user sent any data that is not text

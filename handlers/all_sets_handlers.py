@@ -52,7 +52,7 @@ async def response_set_button(callback: CallbackQuery,
                 text=text
             )
     else:
-        text = f'Все карточки из сета:\n\n{key_set}:\n' + \
+        text = f'Все карточки из колоды:\n\n{key_set}:\n' + \
         '\n'.join([f'{key}: {value}' for key, value in cards.items()])
         await callback.message.edit_text(
                 text=text
