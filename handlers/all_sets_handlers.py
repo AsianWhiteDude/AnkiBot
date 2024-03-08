@@ -118,7 +118,7 @@ async def response_choose_card_to_del(callback: CallbackQuery,
         await callback.message.edit_text(text=LEXICON['no_cards'])
     else:
         chosen_set_to_del_card = create_listed_inline_kb(expansion=CardDelCBF,
-                                                        callback_args={'set_name': from_set},
+                                                        set_name=from_set,
                                                         kwargs=cards,
                                                         editing=False,
                                                         special_smbl=LEXICON['del_smbl'])

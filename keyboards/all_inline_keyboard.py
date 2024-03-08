@@ -6,7 +6,7 @@ from lexicon.lexicon_ru import LEXICON
 
 
 def create_listed_inline_kb(expansion: CallbackData,
-                            callback_args: dict[str, str] = {},
+                            set_name: str = '',
                            args: list[str] = [],
                            kwargs: dict[str, str] = {},
                            editing: bool = True,
@@ -21,10 +21,16 @@ def create_listed_inline_kb(expansion: CallbackData,
 
     #Adding all buttons in a list of args ordered by arg asc
     for button in sorted(args):
-        kb_builder.row(InlineKeyboardButton(
-            text=f'{special_smbl + button}',
-            callback_data=expansion(set_name=button, *callback_args).pack()
-        ))
+        if set_name:
+            kb_builder.row(InlineKeyboardButton(
+                text=f'{special_smbl + button}',
+                callback_data=expansion(set_name=set_name, card=button).pack()
+            ))
+        else:
+            kb_builder.row(InlineKeyboardButton(
+                text=f'{special_smbl + button}',
+                callback_data=expansion(set_name=button).pack()
+            ))
 
     #Adding all buttons in a dict of kwargs orders by key asc
     for key_value in sorted(kwargs.items(), key=lambda x: x[0]):

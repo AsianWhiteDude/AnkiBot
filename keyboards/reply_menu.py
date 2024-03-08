@@ -7,13 +7,14 @@ from lexicon.lexicon_ru import LEXICON
 
 button_add_set = KeyboardButton(text=LEXICON['button_add_set'])
 button_sets = KeyboardButton(text=LEXICON['button_sets'])
+button_study = KeyboardButton(text=LEXICON['button_study'])
 button_add_card = KeyboardButton(text=LEXICON["button_add_card"])
 
 # Initializing keyboard builder
 set_card_kb_builder = ReplyKeyboardBuilder()
 
 # Adding buttons in kb builder with argument width=1
-set_card_kb_builder.row(button_sets, button_add_set, button_add_card, width=1)
+set_card_kb_builder.row(button_sets, button_study, button_add_set, button_add_card, width=2)
 
 # Creating keyboard with buttons
 sets_cards_kb: ReplyKeyboardMarkup = set_card_kb_builder.as_markup(

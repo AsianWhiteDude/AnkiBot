@@ -25,9 +25,13 @@ LEXICON: dict[str, str] = {
     'no_cards': 'В данном сете нету карт\n'
                '/help - справка по работе бота.',
     'choose_del_set_card': 'Выбирите что вы хотите сделать: ',
+    'answer': 'Перевернуть',
+    'hint': 'Подсказка',
+    'next': 'Далее',
     'choose_set': 'Выберите сет:',
     'edit_sets': 'Редактировать',
     'button_sets': 'Мои сеты',
+    'button_study': 'Учить карточки',
     'button_cards': 'Мои карты',
     'button_add_set': 'Добавить сет',
     'button_add_card': 'Добавить карту',

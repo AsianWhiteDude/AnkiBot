@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from config.config import Config, load_config
 from handlers import (create_set_handlers, command_handlers,
                       other_handlers, all_sets_handlers,
-                      add_card_handlers)
+                      add_card_handlers, study_cards)
 from keyboards.main_menu import set_main_menu
 
 
@@ -36,6 +36,7 @@ async def main():
 
     dp.include_router(all_sets_handlers.router)
     dp.include_router(add_card_handlers.router)
+    dp.include_router(study_cards.router)
     dp.include_router(create_set_handlers.router)
     dp.include_router(command_handlers.router)
     dp.include_router(other_handlers.router)
