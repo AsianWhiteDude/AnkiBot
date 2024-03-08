@@ -40,7 +40,10 @@ async def process_cancel_command(message: Message, state: FSMContext):
 async def process_choose_set(message: Message, state: FSMContext):
     sets: list[str] = users_db[message.from_user.id].keys()
 
-    await message.answer(text=LEXICON['choose_set'],
+    if not sets:
+        await message.answer(text=LEXICON['no_sets'])
+    else:
+        await message.answer(text=LEXICON['choose_set'],
                          reply_markup=create_listed_inline_kb(expansion=SetAddCBF,
                                                               editing=False,
                                                               args=sets)

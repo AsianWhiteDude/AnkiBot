@@ -1,6 +1,6 @@
 
 from aiogram import F, Router
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.types import Message
 from database.database import users_db
 from keyboards.reply_menu import sets_cards_kb
@@ -8,7 +8,8 @@ from lexicon.lexicon_ru import LEXICON
 from handlers.all_sets_handlers import process_all_sets
 from handlers.add_card_handlers import process_choose_set
 from handlers.create_set_handlers import process_enter_name
-
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import default_state
 
 router = Router()
 
@@ -40,11 +41,11 @@ async def process_set_command(message: Message):
     await process_all_sets(message)
 
 # This handler is triggered when user enters command "/addset"
-@router.message(Command(commands='addset'))
-async def process_set_command(message: Message):
-    await process_enter_name(message)
+@router.message(Command(commands='addset'), StateFilter(default_state))
+async def process_set_command(message: Message, state: FSMContext):
+    await process_enter_name(message, state)
 
 # This handler is triggered when user enters command "/addcard"
-@router.message(Command(commands='addcard'))
-async def process_set_command(message: Message):
-    await process_choose_set(message)
+@router.message(Command(commands='addcard'), StateFilter(default_state))
+async def process_set_command(message: Message, state: FSMContext):
+    await process_choose_set(message, state)
