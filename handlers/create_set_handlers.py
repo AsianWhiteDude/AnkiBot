@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, State, StatesGroup
 from keyboards.reply_menu import sets_cards_kb
 from lexicon.lexicon_ru import LEXICON
-
+from services.services import validate_set_name
 
 router = Router()
 
@@ -30,6 +30,7 @@ async def process_cancel_command(message: Message, state: FSMContext):
 # the name of a new set
 @router.message(F.text == LEXICON['button_add_set'], StateFilter(default_state))
 async def process_enter_name(message: Message, state: FSMContext):
+
     await message.answer(text=LEXICON['enter_set_name'])
     # setting a state for user to enter a name of the new set
     await state.set_state(FSMAddSet.name)
@@ -40,6 +41,11 @@ async def process_enter_name(message: Message, state: FSMContext):
 # the 'data base' and clears the state afterwards
 @router.message(StateFilter(FSMAddSet.name), F.text)
 async def process_name_sent(message: Message, state: FSMContext):
+
+    if not validate_set_name(message.text):
+        await message.answer(text=LEXICON['not_valid_set_name'])
+        await state.set_state(FSMAddSet.name)
+        return
 
     # updating the name state
     await state.update_data(name=message.text)
