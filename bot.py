@@ -2,12 +2,18 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from config.config import Config, load_config
+
+
+from config.config import Config, PostgreConfig, load_config, load_database
 from handlers import (create_set_handlers, command_handlers,
                       other_handlers, all_sets_handlers,
                       add_card_handlers, study_cards)
 from keyboards.main_menu import set_main_menu
-
+from database.base import BaseModel
+from database.engine import (create_async_engine,
+                             proceed_schemas, get_session_maker)
+from middlewares.register_check import register_check
+from aiogram.fsm.storage.redis import RedisStorage, Redis
 
 
 async def main():
@@ -23,14 +29,25 @@ async def main():
 
     logger.info("Starting bot!")
 
-    config: Config = load_config()
+    config_bot: Config = load_config()
+    config_db: PostgreConfig = load_database()
 
     #Initialization of bot and dispatcher
-    bot = Bot(token=config.tg_bot.token, parse_mode="HTML")
-    dp = Dispatcher()
+    bot = Bot(token=config_bot.tg_bot.token, parse_mode="HTML")
+
+    redis = Redis(host="localhost")
+    storage = RedisStorage(redis=redis)
+
+    dp = Dispatcher(storage=storage)
 
     #Setting main menu for commands
     await set_main_menu(bot)
+
+    async_engine = create_async_engine(config_db.POSTGRES_URL)
+    session_maker = get_session_maker(async_engine)
+    await proceed_schemas(async_engine, BaseModel.metadata)
+
+    dp.workflow_data.update({'session_maker': session_maker})
 
     #Connecting routers from handlers
 
@@ -41,10 +58,11 @@ async def main():
     dp.include_router(command_handlers.router)
     dp.include_router(other_handlers.router)
 
+    dp.message.middleware(register_check())
 
     #Start for only new updates
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, session_maker=session_maker)
 
 
 

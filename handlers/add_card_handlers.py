@@ -38,6 +38,7 @@ async def process_cancel_command(message: Message, state: FSMContext):
 # Creating inline kb to choose a set to add card
 @router.message(F.text == LEXICON['button_add_card'], StateFilter(default_state))
 async def process_choose_set(message: Message, state: FSMContext):
+
     sets: list[str] = users_db[message.from_user.id].keys()
 
     if not sets:
