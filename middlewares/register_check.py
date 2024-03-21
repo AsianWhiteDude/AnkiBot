@@ -30,7 +30,6 @@ class register_check(BaseMiddleware):
                     user = User(
                         user_id=event.from_user.id,
                         username=event.from_user.username,
-                        data={}
                     )
                     await session.merge(user)
                     if isinstance(event, Message):

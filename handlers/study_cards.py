@@ -2,7 +2,7 @@ from aiogram import F, Router
 from aiogram.filters import  StateFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import Message, CallbackQuery
-from database.database import users_db
+from sqlalchemy.orm import sessionmaker
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, StatesGroup
 from keyboards.all_inline_keyboard import create_listed_inline_kb
@@ -10,6 +10,7 @@ from keyboards.other_keyboards import study_kb
 from lexicon.lexicon_ru import LEXICON
 from random import randint
 from services.services import get_hint
+from database.db_commands import get_decks, get_cards
 
 router = Router()
 
@@ -28,8 +29,8 @@ class StudySetCBF(CallbackData, prefix='study_set'):
 
 
 @router.message(F.text == LEXICON['button_study'])
-async def process_choose_set(message: Message):
-    sets: list[str] = users_db[message.from_user.id].keys()
+async def process_choose_set(message: Message, session_maker: sessionmaker):
+    sets: list[str] = await get_decks(user_id=message.from_user.id, session_maker=session_maker)
 
     if not sets:
         await message.answer(text=LEXICON['no_sets'])
@@ -45,9 +46,10 @@ async def process_choose_set(message: Message):
 @router.callback_query(StudySetCBF.filter(), StateFilter(default_state))
 async def study_set_button(callback: CallbackQuery,
                               callback_data: StudySetCBF,
-                              state: FSMContext):
+                              state: FSMContext,
+                           session_maker: sessionmaker):
     key_set = callback_data.pack().split(':')[1]
-    cards = users_db[callback.from_user.id][key_set]
+    cards = get_cards(user_id=callback.from_user.id, set_name=key_set, session_maker=session_maker)
     if not cards:
         text = f'{key_set}: ' + LEXICON['no_cards']
         await callback.message.edit_text(

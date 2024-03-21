@@ -1,13 +1,14 @@
 from aiogram import F, Router
 from aiogram.filters import  StateFilter, Command
 from aiogram.types import Message
-from database.database import users_db
+from sqlalchemy.orm import sessionmaker
+
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, State, StatesGroup
 from keyboards.reply_menu import sets_cards_kb
 from lexicon.lexicon_ru import LEXICON
 from services.services import validate_set_name
-
+from database.db_commands import add_set
 router = Router()
 
 
@@ -40,7 +41,7 @@ async def process_enter_name(message: Message, state: FSMContext):
 # state as 'name', gets data from state, creates a new set in
 # the 'data base' and clears the state afterwards
 @router.message(StateFilter(FSMAddSet.name), F.text)
-async def process_name_sent(message: Message, state: FSMContext):
+async def process_name_sent(message: Message, state: FSMContext, session_maker: sessionmaker):
 
     if not validate_set_name(message.text):
         await message.answer(text=LEXICON['not_valid_set_name'])
@@ -56,7 +57,7 @@ async def process_name_sent(message: Message, state: FSMContext):
         return
 
     #creating a new set in 'data base'
-    users_db[message.from_user.id][current_state['name']] = dict()
+    await add_set(user_id=message.from_user.id, set_name=current_state['name'], session_maker=session_maker)
 
     # clearing state
     await state.clear()

@@ -2,7 +2,6 @@
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.types import Message
-from database.database import users_db
 from keyboards.reply_menu import sets_cards_kb
 from lexicon.lexicon_ru import LEXICON
 from handlers.all_sets_handlers import process_all_sets
@@ -19,9 +18,6 @@ router = Router()
 @router.message(CommandStart())
 async def process_start_command(message: Message):
     await message.answer(LEXICON[message.text], reply_markup=sets_cards_kb)
-
-    if message.from_user.id not in users_db:
-        users_db[message.from_user.id] = {}
 
 
 # This handler is triggered when user enters command "/help"
