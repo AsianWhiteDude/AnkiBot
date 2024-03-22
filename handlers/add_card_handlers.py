@@ -42,7 +42,9 @@ async def process_cancel_command(message: Message, state: FSMContext):
 @router.message(F.text == LEXICON['button_add_card'], StateFilter(default_state))
 async def process_choose_set(message: Message, state: FSMContext,
                              session_maker: sessionmaker):
-    sets: list[str] = await get_decks(user_id=message.from_user.id, session_maker=session_maker)
+
+    sets: list[str] = await get_decks(user_id=message.from_user.id,
+                                      session_maker=session_maker)
 
     if not sets:
         await message.answer(text=LEXICON['no_sets'])
@@ -56,8 +58,13 @@ async def process_choose_set(message: Message, state: FSMContext,
 
 # Saves the front side of the card into the fsm
 @router.callback_query(SetAddCBF.filter(), StateFilter(default_state))
-async def process_frontside(callback: CallbackQuery, state: FSMContext, callback_data: SetAddCBF):
-    await state.update_data(name_set=callback_data)
+async def process_frontside(callback: CallbackQuery,
+                            state: FSMContext,
+                            callback_data: SetAddCBF):
+    set_name = callback_data.pack().split(':')[1]
+
+    await state.update_data(name_set=set_name)
+
     await callback.message.edit_text(text=LEXICON['front_side'])
 
     await state.set_state(FSMCard.front)
@@ -72,7 +79,7 @@ async def process_backside(message: Message, state: FSMContext):
     await state.set_state(FSMCard.back)
 
 
-# Gets data from fsm and creates a new card in the set, clears state afterwards
+# Gets data from fsm and creates a new card in the set, clears state afterward
 @router.message(StateFilter(FSMCard.back), F.text)
 async def process_set_card(message: Message, state: FSMContext,
                            session_maker: sessionmaker):
@@ -82,9 +89,9 @@ async def process_set_card(message: Message, state: FSMContext,
     if current_state is None:
         return
 
-    curr_set: str = current_state['name_set'].pack().split(':')[-1]
+    curr_set: str = current_state['name_set']
 
-    await add_card(user_id=message.from_user.id, key=current_state['front'], value=current_state['back'],
+    await add_card(user_id=message.from_user.id, set_name=curr_set,  key=current_state['front'], value=current_state['back'],
                    session_maker=session_maker)
 
     await state.clear()

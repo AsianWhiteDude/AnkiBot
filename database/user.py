@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, DATE, VARCHAR, ForeignKey
+from sqlalchemy import Column, Integer, DATE, VARCHAR, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import JSONB
 
 from .base import BaseModel
@@ -27,9 +27,22 @@ class Deck(BaseModel):
 
     deck_name = Column(VARCHAR(32), unique=True, nullable=False)
 
-    data = Column(JSONB)
-
     user_id = Column(ForeignKey('users.user_id'))
 
     def __str__(self):
-        return f'<User:{self.deck_id}>'
+        return f'<Deck:{self.deck_id}>'
+
+
+class Card(BaseModel):
+    __tablename__ = 'cards'
+
+    card_id = Column(Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+
+    card_front = Column(Text, unique=True, nullable=False)
+
+    card_back = Column(Text, unique=False, nullable=False)
+
+    deck_id = Column(ForeignKey('decks.deck_id'))
+
+    def __str__(self):
+        return f'<Card:{self.card_id}>'

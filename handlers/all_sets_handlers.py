@@ -31,7 +31,8 @@ class CardDelCBF(CallbackData, prefix='card_del'):
 @router.message(F.text == LEXICON['button_sets'])
 async def process_all_sets(message: Message,
                            session_maker: sessionmaker):
-    sets: list[str] = await get_decks(user_id=message.from_user.id, session_maker=session_maker)
+    sets: list[str] = await get_decks(user_id=message.from_user.id,
+                                      session_maker=session_maker)
 
     if not sets:
         await message.answer(text=LEXICON['no_sets'])
@@ -48,7 +49,7 @@ async def response_set_button(callback: CallbackQuery,
                               callback_data: SetCBF,
                               session_maker: sessionmaker):
     key_set = callback_data.pack().split(':')[1]
-    cards = get_cards(user_id=callback.from_user.id, set_name=key_set, session_maker=session_maker)
+    cards = await get_cards(user_id=callback.from_user.id, set_name=key_set, session_maker=session_maker)
     if not cards:
         text = f'{key_set}: ' + LEXICON['no_cards']
         await callback.message.edit_text(
@@ -81,7 +82,7 @@ async def response_edit_sets(callback: CallbackQuery, session_maker: sessionmake
 
 # Shows all sets. On press shows all cards of the set
 @router.callback_query(F.data == 'button_cards')
-async def response_edit_cards(callback: CallbackQuery, session_maker:sessionmaker):
+async def response_edit_cards(callback: CallbackQuery, session_maker: sessionmaker):
     sets: list[str] = await get_decks(user_id=callback.from_user.id, session_maker=session_maker)
     del_sets = create_listed_inline_kb(expansion=SetCardsCBF,
                                        args=sets,
@@ -118,7 +119,7 @@ async def response_choose_card_to_del(callback: CallbackQuery,
                                       callback_data: SetCardsCBF,
                                       session_maker: sessionmaker):
     from_set = callback_data.pack().split(':')[1]
-    cards = get_cards(user_id=callback.from_user.id, set_name=from_set, session_maker=session_maker)
+    cards = await get_cards(user_id=callback.from_user.id, set_name=from_set, session_maker=session_maker)
 
     if not cards:
         await callback.message.edit_text(text=LEXICON['no_cards'])
@@ -140,9 +141,9 @@ async def response_del_card(callback: CallbackQuery,
                             callback_data: CardDelCBF,
                             session_maker: sessionmaker):
     from_set, card_key = callback_data.pack().split(':')[1:]
-    await del_card(user_id=callback.from_user.id, key=card_key, session_maker=session_maker)
+    await del_card(user_id=callback.from_user.id, set_name=from_set, key=card_key, session_maker=session_maker)
 
-    cards = get_cards(user_id=callback.from_user.id, set_name=from_set, session_maker=session_maker)
+    cards = await get_cards(user_id=callback.from_user.id, set_name=from_set, session_maker=session_maker)
 
     if not cards:
         await callback.message.edit_text(text=LEXICON['no_cards'])

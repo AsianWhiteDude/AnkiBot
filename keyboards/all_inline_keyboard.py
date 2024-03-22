@@ -32,12 +32,12 @@ def create_listed_inline_kb(expansion: CallbackData,
                 callback_data=expansion(set_name=button).pack()
             ))
 
-    #Adding all buttons in a dict of kwargs orders by key asc
+    #Adding all buttons in a dict of kwargs ordered by key asc
     for key_value in sorted(kwargs.items(), key=lambda x: x[0]):
         key, value = key_value
         kb_builder.row(InlineKeyboardButton(
             text=f'{special_smbl}{key}: {value}',
-            callback_data=expansion(set_name=key, *callback_args).pack()
+            callback_data=expansion(set_name=set_name, card=key).pack()
         ))
 
 

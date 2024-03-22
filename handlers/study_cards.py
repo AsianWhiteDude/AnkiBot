@@ -49,7 +49,7 @@ async def study_set_button(callback: CallbackQuery,
                               state: FSMContext,
                            session_maker: sessionmaker):
     key_set = callback_data.pack().split(':')[1]
-    cards = get_cards(user_id=callback.from_user.id, set_name=key_set, session_maker=session_maker)
+    cards = await get_cards(user_id=callback.from_user.id, set_name=key_set, session_maker=session_maker)
     if not cards:
         text = f'{key_set}: ' + LEXICON['no_cards']
         await callback.message.edit_text(
