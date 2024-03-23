@@ -46,7 +46,7 @@ async def main():
     session_maker = get_session_maker(async_engine)
     await proceed_schemas(async_engine, BaseModel.metadata)
 
-    dp.workflow_data.update({'session_maker': session_maker})
+    dp.workflow_data.update({'session_maker': session_maker, 'redis': redis})
 
     #Connecting routers from handlers
 
