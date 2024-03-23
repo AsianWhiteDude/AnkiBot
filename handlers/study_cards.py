@@ -29,7 +29,7 @@ class StudySetCBF(CallbackData, prefix='study_set'):
 
 
 @router.message(F.text == LEXICON['button_study'])
-async def process_choose_set(message: Message, session_maker: sessionmaker):
+async def process_study_set(message: Message, session_maker: sessionmaker):
     sets: list[str] = await get_decks(user_id=message.from_user.id, session_maker=session_maker)
 
     if not sets:

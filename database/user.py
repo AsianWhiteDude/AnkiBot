@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, DATE, VARCHAR, ForeignKey, Text
+from sqlalchemy import Column, Integer, DATE, VARCHAR, ForeignKey, Text, BigInteger
 from sqlalchemy.dialects.postgresql import JSONB
 
 from .base import BaseModel
@@ -8,7 +8,7 @@ from .base import BaseModel
 class User(BaseModel):
     __tablename__ = 'users'
 
-    user_id = Column(Integer, unique=True, nullable=False, primary_key=True) # Telegram user id
+    user_id = Column(BigInteger, unique=True, nullable=False, primary_key=True) # Telegram user id
 
     username = Column(VARCHAR(32), unique=False, nullable=True)
 
@@ -23,7 +23,7 @@ class User(BaseModel):
 class Deck(BaseModel):
     __tablename__ = 'decks'
 
-    deck_id = Column(Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+    deck_id = Column(BigInteger, unique=True, nullable=False, primary_key=True, autoincrement=True)
 
     deck_name = Column(VARCHAR(32), unique=True, nullable=False)
 
@@ -36,7 +36,7 @@ class Deck(BaseModel):
 class Card(BaseModel):
     __tablename__ = 'cards'
 
-    card_id = Column(Integer, unique=True, nullable=False, primary_key=True, autoincrement=True)
+    card_id = Column(BigInteger, unique=True, nullable=False, primary_key=True, autoincrement=True)
 
     card_front = Column(Text, unique=True, nullable=False)
 

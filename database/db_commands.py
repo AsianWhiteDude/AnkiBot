@@ -19,7 +19,6 @@ async def add_set(user_id: int, set_name: str, session_maker: sessionmaker) -> N
                                             )
                                         )
 
-
 async def add_card(user_id: int, set_name: str, key: str, value: str, session_maker: sessionmaker) -> None:
 
     async with session_maker() as session:
