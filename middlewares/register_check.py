@@ -20,7 +20,6 @@ class register_check(BaseMiddleware):
         session_maker = data['session_maker']
         redis = data['redis']
         result = await is_user_exists(user_id=event.from_user.id, session_maker=session_maker, redis=redis)
-        print(result)
 
         if not result:
             await create_user(user_id=event.from_user.id,
