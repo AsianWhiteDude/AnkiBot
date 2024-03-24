@@ -1,13 +1,7 @@
-import asyncio
-from typing import Any, Awaitable, Callable, Dict, Union
-
-from aiogram.types import TelegramObject, Message, CallbackQuery
-from sqlalchemy import select, insert, update, delete
-
+from sqlalchemy import select, insert, delete
 from database.engine import sessionmaker
-
 from database.user import User, Deck, Card
-
+from redis import Redis
 
 async def add_set(user_id: int, set_name: str, session_maker: sessionmaker) -> None:
 
@@ -106,3 +100,29 @@ async def get_cards(user_id: int, set_name: str, session_maker: sessionmaker) ->
             data = {keys[i]: values[i] for i in range(len(keys))}
 
             return data
+
+
+async def create_user(user_id: int, username: str, session_maker: sessionmaker) -> None:
+    async with session_maker() as session:
+        async with session.begin():
+            user = User(
+                user_id=user_id,
+                username=username
+            )
+            session.add(user)
+
+
+async def is_user_exists(user_id: int, session_maker: sessionmaker, redis: Redis) -> bool:
+    res = await redis.get(name='is_user_exists:' + str(user_id))
+    if not res:
+        async with session_maker() as session:
+            async with session.begin():
+                sql_res = await session.execute(
+                    statement=select(User).where(User.user_id == user_id)
+                )
+                sql_res = sql_res.scalars().all()
+
+                await redis.set(name='is_user_exists:' + str(user_id), value=1 if sql_res else 0)
+                return bool(sql_res)
+    else:
+        return bool(res)

@@ -1,14 +1,10 @@
-from typing import Any, Awaitable, Callable, Dict, Union
+
+from typing import Callable, Dict, Any, Awaitable, Union
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, Message, CallbackQuery
-from sqlalchemy import select
+from aiogram.types import Message, CallbackQuery, TelegramObject
 
-from database.engine import sessionmaker
-
-
-from database.user import User
-
+from database.db_commands import is_user_exists, create_user
 
 class register_check(BaseMiddleware):
     async def __call__(
@@ -18,23 +14,17 @@ class register_check(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
 
-        session_maker: sessionmaker = data['session_maker']
-        async with session_maker() as session:
-            async with session.begin():
-                result = await session.execute(statement=select(User).where(User.user_id == event.from_user.id))
-                user = result.one_or_none()
+        if event.web_app_data:
+            return await handler(event, data)
 
-                if user:
-                    pass
-                else:
-                    user = User(
-                        user_id=event.from_user.id,
-                        username=event.from_user.username,
-                    )
-                    await session.merge(user)
-                    if isinstance(event, Message):
-                        await event.answer('Ты был успешно зарегестрирован!')
-                    else:
-                        await event.message.answer('Ты был успешно зарегестрирован!')
+        session_maker = data['session_maker']
+        redis = data['redis']
+        result = await is_user_exists(user_id=event.from_user.id, session_maker=session_maker, redis=redis)
+
+        if not result:
+            await create_user(user_id=event.from_user.id,
+                              username=event.from_user.username, session_maker=session_maker)
+            await data['bot'].send_message(event.from_user.id, 'Ты успешно зарегистрирован(а)!')
 
         return await handler(event, data)
+

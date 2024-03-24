@@ -13,8 +13,8 @@ from database.base import BaseModel
 from database.engine import (create_async_engine,
                              proceed_schemas, get_session_maker)
 from middlewares.register_check import register_check
-from aiogram.fsm.storage.redis import RedisStorage, Redis
-
+from aiogram.fsm.storage.redis import RedisStorage
+from structures.redis import redis
 
 async def main():
 
@@ -35,7 +35,6 @@ async def main():
     #Initialization of bot and dispatcher
     bot = Bot(token=config_bot.tg_bot.token, parse_mode="HTML")
 
-    redis = Redis(host="localhost")
     storage = RedisStorage(redis=redis)
 
     dp = Dispatcher(storage=storage)
@@ -47,7 +46,7 @@ async def main():
     session_maker = get_session_maker(async_engine)
     await proceed_schemas(async_engine, BaseModel.metadata)
 
-    dp.workflow_data.update({'session_maker': session_maker})
+    dp.workflow_data.update({'session_maker': session_maker, 'redis': redis})
 
     #Connecting routers from handlers
 
